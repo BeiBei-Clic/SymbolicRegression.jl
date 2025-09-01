@@ -279,11 +279,11 @@ function optimize_multilinear_individual(member::PopMember{T,L}, dataset::Datase
     )
     
     # 如果新个体更好，返回新个体
-    if new_member.cost < member.cost
-        return new_member, 1.0  # 1次评估
-    else
-        return member, 1.0
-    end
+    # if new_member.cost < member.cost
+    #     return new_member, 1.0  # 1次评估
+    # else
+    #     return member, 1.0
+    return new_member, 1.0
 end
 
 """
