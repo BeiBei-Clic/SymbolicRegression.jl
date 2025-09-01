@@ -216,6 +216,7 @@ using DispatchDoctor: @stable
     include("MutationFunctions.jl")
     include("LossFunctions.jl")
     include("PopMember.jl")
+    include("LinearOptimization.jl")
     include("ConstantOptimization.jl")
     include("Population.jl")
     include("HallOfFame.jl")

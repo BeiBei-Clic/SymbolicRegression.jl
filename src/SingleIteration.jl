@@ -12,6 +12,7 @@ using ..AdaptiveParsimonyModule: RunningSearchStatistics
 using ..RegularizedEvolutionModule: reg_evol_cycle
 using ..LossFunctionsModule: eval_cost
 using ..ConstantOptimizationModule: optimize_constants
+using ..LinearOptimizationModule: optimize_multilinear_individual
 using ..RecorderModule: @recorder
 
 # Cycle through regularized evolution many times,
@@ -70,6 +71,7 @@ function optimize_and_simplify_population(
 )::Tuple{P,Float64} where {T,L,D<:Dataset{T,L},P<:Population{T,L}}
     array_num_evals = zeros(Float64, pop.n)
     do_optimization = rand(pop.n) .< options.optimizer_probability
+    do_linear_optimization = rand(pop.n) .< 2  # 100% 概率进行线性优化
     # Note: we have to turn off this threading loop due to Enzyme, since we need
     # to manually allocate a new task with a larger stack for Enzyme.
     should_thread = !(options.deterministic) && !(isa(options.autodiff_backend, AutoEnzyme))
@@ -88,6 +90,14 @@ function optimize_and_simplify_population(
             pop.members[j], array_num_evals[j] = optimize_constants(
                 batched_dataset, pop.members[j], options
             )
+        end
+        # 添加线性优化逻辑
+        if do_linear_optimization[j]
+            optimized_member, linear_evals = optimize_multilinear_individual(
+                pop.members[j], batched_dataset, options
+            )
+            pop.members[j] = optimized_member
+            array_num_evals[j] += linear_evals
         end
     end
     num_evals = sum(array_num_evals)
